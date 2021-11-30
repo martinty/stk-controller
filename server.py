@@ -1,12 +1,12 @@
 # Server with TCP
 # python3 -m pip install pynput
-import multiprocessing as mp
-import socket
 
+import argparse
 from pynput.keyboard import Controller, Key
 
+from http_receiver import run_http_server
+from tcp_receiver import run_tcp_socket_server
 
-HOST = "0.0.0.0"
 PORT_1 = 8001
 PORT_2 = 8002
 CONTROLLER = {
@@ -63,49 +63,28 @@ def release_all_keys(keyboard) -> None:
             keyboard.release(k)
 
 
-def server_tcp(host, port) -> None:
+def main(protocol):
     keyboard = Controller()
-    try:
-        while True:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                s.bind((host, port))
-                s.listen()
-                conn, addr = s.accept()
-                with conn:
-                    print("Connected by", addr)
-                    while True:
-                        data = conn.recv(32)
-                        if len(data) < 1:
-                            break
-                        player_input = data.decode().split(",")
-                        player = int(player_input[0])
-                        acc = int(player_input[1])
-                        dir = int(player_input[2])
-                        act = int(player_input[3])
-                        control_player(keyboard, player, acc, dir, act)
-                print(f"Disconnected", addr)
-                release_all_keys(keyboard)
-    except KeyboardInterrupt:
+
+    def process_command(data: str):
+        player_input = data.split(",")
+        player = int(player_input[0])
+        acc = int(player_input[1])
+        dir = int(player_input[2])
+        act = int(player_input[3])
+        control_player(keyboard, player, acc, dir, act)
+
+    def cleanup():
         release_all_keys(keyboard)
 
-
-def main() -> None:
-    p_1 = mp.Process(target=server_tcp, args=(HOST, PORT_1))
-    p_2 = mp.Process(target=server_tcp, args=(HOST, PORT_2))
-    p_1.start()
-    p_2.start()
-
-    try:
-        mp.Event().wait()
-    except KeyboardInterrupt:
-        pass
-
-    p_1.join()
-    p_2.join()
-
-    print("--- Exit Server ---")
+    if protocol == "http":
+        run_http_server(PORT_1, process_command, cleanup)
+    else:
+        run_tcp_socket_server(PORT_1, PORT_2, process_command, cleanup)
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--protocol", choices=["http", "tcp"], default="http")
+    args = parser.parse_args()
+    main(args.protocol)
