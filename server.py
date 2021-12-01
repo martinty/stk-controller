@@ -1,4 +1,4 @@
-# Server with TCP
+# Server with HTTP or TCP
 # python3 -m pip install pynput
 
 import argparse
@@ -9,6 +9,8 @@ from tcp_receiver import run_tcp_socket_server
 
 PORT_1 = 8001
 PORT_2 = 8002
+PORT_3 = 8003
+PORT_4 = 8004
 CONTROLLER = {
     1: {
         "up": Key.up,
@@ -23,6 +25,20 @@ CONTROLLER = {
         "right": "d",
         "left": "a",
         "act": "f",
+    },
+    3: {
+        "up": "4",
+        "down": "r",
+        "right": "t",
+        "left": "e",
+        "act": "y",
+    },
+    4: {
+        "up": "u",
+        "down": "j",
+        "right": "k",
+        "left": "h",
+        "act": "l",
     },
 }
 
@@ -63,10 +79,10 @@ def release_all_keys(keyboard) -> None:
             keyboard.release(k)
 
 
-def main(protocol):
+def main(protocol) -> None:
     keyboard = Controller()
 
-    def process_command(data: str):
+    def process_command(data: str) -> None:
         player_input = data.split(",")
         player = int(player_input[0])
         acc = int(player_input[1])
@@ -74,13 +90,13 @@ def main(protocol):
         act = int(player_input[3])
         control_player(keyboard, player, acc, dir, act)
 
-    def cleanup():
+    def cleanup() -> None:
         release_all_keys(keyboard)
 
     if protocol == "http":
         run_http_server(PORT_1, process_command, cleanup)
     else:
-        run_tcp_socket_server(PORT_1, PORT_2, process_command, cleanup)
+        run_tcp_socket_server((PORT_1, PORT_2, PORT_3, PORT_4), process_command, cleanup)
 
 
 if __name__ == "__main__":

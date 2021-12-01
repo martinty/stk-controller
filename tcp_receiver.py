@@ -1,6 +1,6 @@
 import socket
 from threading import Event, Thread
-from typing import Callable
+from typing import Callable, List, Tuple
 
 
 def create_keyboard_socket(port: int, stop: Event, process_command: Callable, cleanup: Callable) -> None:
@@ -25,20 +25,22 @@ def create_keyboard_socket(port: int, stop: Event, process_command: Callable, cl
             cleanup()
 
 
-def run_tcp_socket_server(port1: int, port2: int, process_command: Callable, cleanup: Callable) -> None:
+def run_tcp_socket_server(ports: Tuple, process_command: Callable, cleanup: Callable) -> None:
+    print("--- Starting TCP server ---")
     stop = Event()
-    t_1 = Thread(target=create_keyboard_socket, args=(port1, stop, process_command, cleanup))
-    t_2 = Thread(target=create_keyboard_socket, args=(port2, stop, process_command, cleanup))
-    t_1.start()
-    t_2.start()
+    threads: List[Thread] = []
+    for port in ports:
+        threads.append(Thread(target=create_keyboard_socket, args=(port, stop, process_command, cleanup)))
+    for t in threads:
+        t.start()
 
     try:
         Event().wait()
     except KeyboardInterrupt:
         stop.set()
 
-    t_1.join()
-    t_2.join()
+    for t in threads:
+        t.join()
 
     cleanup()
-    print("--- Exit TCP server ---")
+    print("--- Stopping TCP server ---")
