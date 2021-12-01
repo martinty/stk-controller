@@ -1,6 +1,6 @@
 # stk-controller
 
-Remote keyboard controller for SuperTuxKart.
+Remote keyboard controller for SuperTuxKart. The SuperTuxKart window has to be in focus when the server is running.
 
 ## Client
 
@@ -28,6 +28,8 @@ For TCP the msg need to be padded to 32 bytes before sending.
 ```sh
 "player,acc,dir,act,padding"
 ```
+
+For `pygame` controller to work the `pygame` window has the be in focus to register keystrokes.
 
 ## Dependencies
 
