@@ -15,13 +15,13 @@ def create_keyboard_socket(port: int, stop: Event, process_command: Callable, cl
             except socket.timeout:
                 continue
             with conn:
-                print("Connected by", addr)
+                print(f"Connected by addr={addr}, port={port}")
                 while not stop.is_set():
                     data = conn.recv(32)
                     if len(data) < 1:
                         break
                     process_command(data.decode())
-            print(f"Disconnected", addr)
+            print(f"Disconnected addr={addr}, port={port}")
             cleanup()
 
 
