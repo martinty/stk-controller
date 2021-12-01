@@ -1,41 +1,44 @@
 import socket
-import multiprocessing as mp
+from threading import Event, Thread
+from typing import Callable
 
 
-def create_keyboard_socket(port, process_command, cleanup) -> None:
-    try:
-        while True:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                s.bind(("0.0.0.0", port))
-                s.listen()
+def create_keyboard_socket(port: int, stop: Event, process_command: Callable, cleanup: Callable) -> None:
+    while not stop.is_set():
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            s.bind(("0.0.0.0", port))
+            s.listen()
+            s.settimeout(1)
+            try:
                 conn, addr = s.accept()
-                with conn:
-                    print("Connected by", addr)
-                    while True:
-                        data = conn.recv(32)
-                        if len(data) < 1:
-                            break
+            except socket.timeout:
+                continue
+            with conn:
+                print("Connected by", addr)
+                while not stop.is_set():
+                    data = conn.recv(32)
+                    if len(data) < 1:
+                        break
+                    process_command(data.decode())
+            print(f"Disconnected", addr)
+            cleanup()
 
-                        process_command(data.decode())
-                print(f"Disconnected", addr)
-                cleanup()
-    except KeyboardInterrupt:
-        cleanup()
 
-
-def run_tcp_socket_server(port1, port2, process_command, cleanup):
-    p_1 = mp.Process(target=create_keyboard_socket, args=(port1, process_command, cleanup))
-    p_2 = mp.Process(target=create_keyboard_socket, args=(port2, process_command, cleanup))
-    p_1.start()
-    p_2.start()
+def run_tcp_socket_server(port1: int, port2: int, process_command: Callable, cleanup: Callable) -> None:
+    stop = Event()
+    t_1 = Thread(target=create_keyboard_socket, args=(port1, stop, process_command, cleanup))
+    t_2 = Thread(target=create_keyboard_socket, args=(port2, stop, process_command, cleanup))
+    t_1.start()
+    t_2.start()
 
     try:
-        mp.Event().wait()
+        Event().wait()
     except KeyboardInterrupt:
-        pass
+        stop.set()
 
-    p_1.join()
-    p_2.join()
+    t_1.join()
+    t_2.join()
 
-    print("--- Exit Server ---")
+    cleanup()
+    print("--- Exit TCP server ---")
