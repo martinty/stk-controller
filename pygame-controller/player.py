@@ -64,6 +64,7 @@ def control_player(player: int) -> Tuple[int, int, int]:
 
 def player_http(player: int, host: str, port: int) -> None:
     pygame_init()
+    print(f"--- Start http player {player} ---")
     prev_acc = prev_dir = prev_act = 0
     clock = pygame.time.Clock()
     try:
@@ -84,10 +85,12 @@ def player_http(player: int, host: str, port: int) -> None:
             requests.post(f"http://{host}:{port}", data=msg)
     except KeyboardInterrupt:
         pass
+    print(f"--- Stop http player {player} ---")
 
 
 def player_tcp(player: int, host: str, port: int) -> None:
     pygame_init()
+    print(f"--- Start TCP player {player} ---")
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((host, port))
     prev_acc = prev_dir = prev_act = 0
@@ -114,6 +117,7 @@ def player_tcp(player: int, host: str, port: int) -> None:
     except KeyboardInterrupt:
         pass
     s.close()
+    print(f"--- Stop TCP player {player} ---")
 
 
 if __name__ == "__main__":

@@ -37,6 +37,7 @@ python3 -m pip install pynput
 ```
 
 ```sh
-# For pygame controller (player_x.py)
+# For pygame controller (player.py)
 python3 -m pip install pygame
+python3 -m pip install requests
 ```
