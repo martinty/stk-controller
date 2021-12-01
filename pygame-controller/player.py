@@ -123,11 +123,11 @@ def player_tcp(player: int, host: str, port: int) -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--protocol", choices=["http", "tcp"], default="http")
-    parser.add_argument("--player", choices=[1, 2, 3, 4], default=1)
+    parser.add_argument("--player", choices=["1", "2", "3", "4"], default="1")
     parser.add_argument("--host", default=("10.77.2.39"))
-    parser.add_argument("--port", default=8001)
+    parser.add_argument("--port", default="8001")
     args = parser.parse_args()
     if args.protocol == "http":
-        player_http(args.player, args.host, args.port)
+        player_http(int(args.player), args.host, int(args.port))
     else:
-        player_tcp(args.player, args.host, args.port)
+        player_tcp(int(args.player), args.host, int(args.port))
