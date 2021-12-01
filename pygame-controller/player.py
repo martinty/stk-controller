@@ -1,4 +1,4 @@
-# pygame http or TCP client controller
+# pygame http and TCP client controller
 # python -m pip install pygame
 # python -m pip install requests
 
@@ -9,7 +9,7 @@ from typing import Tuple
 import pygame
 import requests
 
-CONTROLLER = {
+CONTROLLER_PYGAME = {
     1: {
         "up": pygame.K_UP,
         "down": pygame.K_DOWN,
@@ -46,18 +46,24 @@ def pygame_init() -> None:
     pygame.display.set_mode(size=(400, 200))
 
 
-def control_player(player: int) -> Tuple[int, int, int]:
+def control_player_pygame(player: int, clock: pygame.time.Clock) -> Tuple[int, int, int]:
+    clock.tick(60)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            break
+        if event.type == pygame.KEYDOWN:
+            print(pygame.key.name(event.key))
     acc = dir = act = 0
     keys = pygame.key.get_pressed()
-    if keys[CONTROLLER[player]["left"]]:
+    if keys[CONTROLLER_PYGAME[player]["left"]]:
         dir = -100
-    elif keys[CONTROLLER[player]["right"]]:
+    elif keys[CONTROLLER_PYGAME[player]["right"]]:
         dir = 100
-    if keys[CONTROLLER[player]["up"]]:
+    if keys[CONTROLLER_PYGAME[player]["up"]]:
         acc = 100
-    elif keys[CONTROLLER[player]["down"]]:
+    elif keys[CONTROLLER_PYGAME[player]["down"]]:
         acc = -100
-    if keys[CONTROLLER[player]["act"]]:
+    if keys[CONTROLLER_PYGAME[player]["act"]]:
         act = 1
     return (acc, dir, act)
 
@@ -69,13 +75,7 @@ def player_http(player: int, host: str, port: int) -> None:
     clock = pygame.time.Clock()
     try:
         while True:
-            clock.tick(60)
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    break
-                if event.type == pygame.KEYDOWN:
-                    print(pygame.key.name(event.key))
-            acc, dir, act = control_player(player)
+            acc, dir, act = control_player_pygame(player, clock)
             if acc == prev_acc and dir == prev_dir and act == prev_act:
                 continue
             prev_acc = acc
@@ -97,13 +97,7 @@ def player_tcp(player: int, host: str, port: int) -> None:
     clock = pygame.time.Clock()
     try:
         while True:
-            clock.tick(60)
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    break
-                if event.type == pygame.KEYDOWN:
-                    print(pygame.key.name(event.key))
-            acc, dir, act = control_player(player)
+            acc, dir, act = control_player_pygame(player, clock)
             if acc == prev_acc and dir == prev_dir and act == prev_act:
                 continue
             prev_acc = acc
