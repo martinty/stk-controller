@@ -17,12 +17,11 @@ def create_keyboard_socket(port: int, stop: Event, process_command: Callable, cl
             with conn:
                 print(f"Connected by addr={addr}, port={port}")
                 while not stop.is_set():
-                    data = conn.recv(32)
+                    data = conn.recv(32)  # Will block until client send new msg
                     if len(data) < 1:
                         break
                     process_command(data.decode())
             print(f"Disconnected addr={addr}, port={port}")
-            cleanup()
 
 
 def run_tcp_socket_server(ports: Tuple, process_command: Callable, cleanup: Callable) -> None:
