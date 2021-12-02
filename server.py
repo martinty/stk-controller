@@ -2,15 +2,18 @@
 # python3 -m pip install pynput
 
 import argparse
+
 from pynput.keyboard import Controller, Key
 
 from http_receiver import run_http_server
 from tcp_receiver import run_tcp_socket_server
+from udp_receiver import run_udp_socket_server
 
-PORT_1 = 8001
-PORT_2 = 8002
-PORT_3 = 8003
-PORT_4 = 8004
+
+PORTS_TCP = (8001, 8002, 8003, 8004)
+PORT_HTTP = 8005
+PORT_UDP = 8006
+
 CONTROLLER = {
     1: {
         "up": Key.up,
@@ -94,13 +97,15 @@ def main(protocol) -> None:
         release_all_keys(keyboard)
 
     if protocol == "http":
-        run_http_server(PORT_1, process_command, cleanup)
+        run_http_server(PORT_HTTP, process_command, cleanup)
+    elif protocol == "tcp":
+        run_tcp_socket_server(PORTS_TCP, process_command, cleanup)
     else:
-        run_tcp_socket_server((PORT_1, PORT_2, PORT_3, PORT_4), process_command, cleanup)
+        run_udp_socket_server(PORT_UDP, process_command, cleanup)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--protocol", choices=["http", "tcp"], default="http")
+    parser.add_argument("--protocol", choices=["http", "tcp", "udp"], default="http")
     args = parser.parse_args()
     main(args.protocol)
