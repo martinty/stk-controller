@@ -2,7 +2,7 @@ import socket
 from typing import Callable
 
 
-def run_udp_socket_server(port: str, process_command: Callable, cleanup: Callable) -> None:
+def run_udp_socket_server(port: int, process_command: Callable, cleanup: Callable) -> None:
     print("--- Starting UDP server ---")
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)

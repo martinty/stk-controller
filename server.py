@@ -2,6 +2,7 @@
 # python3 -m pip install pynput
 
 import argparse
+from typing import Union
 
 from pynput.keyboard import Controller, Key
 
@@ -48,7 +49,7 @@ CONTROLLER = {
 
 class DummyKeyboardController(object):
     @staticmethod
-    def get_key_as_string(key):
+    def get_key_as_string(key: Key) -> Union[Key, str]:
         if key == Key.up:
             return "up"
         if key == Key.down:
@@ -61,10 +62,10 @@ class DummyKeyboardController(object):
             return "space"
         return key
 
-    def press(self, key):
+    def press(self, key: Key) -> None:
         print("pressed", self.get_key_as_string(key))
 
-    def release(self, key):
+    def release(self, key: Key) -> None:
         print("released", self.get_key_as_string(key))
 
 

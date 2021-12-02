@@ -1,4 +1,4 @@
-# pygame http and TCP client controller
+# pygame http, TCP and UDP client controller
 # python -m pip install pygame
 # python -m pip install requests
 

@@ -17,7 +17,7 @@ def create_keyboard_socket(port: int, stop: Event, process_command: Callable, cl
             with conn:
                 print(f"Connected by addr={addr}, port={port}")
                 while not stop.is_set():
-                    data = conn.recv(32)  # Will block until client send new msg
+                    data = conn.recv(32)  # Will block until client send new msg or close connection.
                     if len(data) < 1:
                         break
                     process_command(data.decode())
