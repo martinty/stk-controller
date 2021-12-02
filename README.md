@@ -23,7 +23,7 @@ act: [0, 1]
 
 ## Note
 
-For TCP the msg need to be padded to 32 bytes before sending.
+For TCP and UDP the msg need to be padded to 32 bytes before sending.
 
 ```sh
 "player,acc,dir,act,padding"
@@ -41,5 +41,5 @@ python3 -m pip install pynput
 ```sh
 # For pygame controller (player.py)
 python3 -m pip install pygame
-python3 -m pip install requests
+python3 -m pip install requests  # http only
 ```
