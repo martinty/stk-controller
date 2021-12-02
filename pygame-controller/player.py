@@ -114,14 +114,41 @@ def player_tcp(player: int, host: str, port: int) -> None:
     print(f"--- Stop TCP player {player} ---")
 
 
+def player_udp(player: int, host: str, port: int) -> None:
+    pygame_init()
+    print(f"--- Start UDP player {player} ---")
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    prev_acc = prev_dir = prev_act = 0
+    clock = pygame.time.Clock()
+    try:
+        while True:
+            acc, dir, act = control_player_pygame(player, clock)
+            if acc == prev_acc and dir == prev_dir and act == prev_act:
+                continue
+            prev_acc = acc
+            prev_dir = dir
+            prev_act = act
+            msg = f"{player},{acc},{dir},{act},"
+            if len(msg) < 32:
+                msg += str(0) * (32 - len(msg))
+            data = msg.encode("utf-8")
+            s.sendto(data, (host, port))
+    except KeyboardInterrupt:
+        pass
+    s.close()
+    print(f"--- Stop UDP player {player} ---")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--protocol", choices=["http", "tcp"], default="http")
+    parser.add_argument("--protocol", choices=["http", "tcp", "udp"], default="http")
     parser.add_argument("--player", choices=["1", "2", "3", "4"], default="1")
     parser.add_argument("--host", default=("10.77.2.39"))
-    parser.add_argument("--port", default="8001")
+    parser.add_argument("--port", default="8005")
     args = parser.parse_args()
     if args.protocol == "http":
         player_http(int(args.player), args.host, int(args.port))
-    else:
+    elif args.protocol == "tcp":
         player_tcp(int(args.player), args.host, int(args.port))
+    else:
+        player_udp(int(args.player), args.host, int(args.port))
