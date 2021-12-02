@@ -3,7 +3,7 @@ from threading import Event, Thread
 from typing import Callable, List, Tuple
 
 
-def create_keyboard_socket(port: int, stop: Event, process_command: Callable, cleanup: Callable) -> None:
+def create_keyboard_socket(port: int, stop: Event, process_command: Callable) -> None:
     while not stop.is_set():
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -29,7 +29,7 @@ def run_tcp_socket_server(ports: Tuple, process_command: Callable, cleanup: Call
     stop = Event()
     threads: List[Thread] = []
     for port in ports:
-        threads.append(Thread(target=create_keyboard_socket, args=(port, stop, process_command, cleanup)))
+        threads.append(Thread(target=create_keyboard_socket, args=(port, stop, process_command)))
     for t in threads:
         t.start()
 

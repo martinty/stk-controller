@@ -10,7 +10,6 @@ from http_receiver import run_http_server
 from tcp_receiver import run_tcp_socket_server
 from udp_receiver import run_udp_socket_server
 
-
 PORTS_TCP = (8001, 8002, 8003, 8004)
 PORT_HTTP = 8005
 PORT_UDP = 8006
